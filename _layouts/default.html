@@ -63,15 +63,6 @@
           </section>
           
           <section class="sidebar-section">
-            <h3>分类</h3>
-            <ul class="category-list">
-              {{ range $category, $posts := .site.categories }}
-                <li><a href="/categories/{{ $category }}/">{{ $category }} ({{ len $posts }})</a></li>
-              {{ end }}
-            </ul>
-          </section>
-          
-          <section class="sidebar-section">
             <h3>标签</h3>
             <div class="tag-cloud">
               {{ range .site.JiebaTags }}

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>极简博客测试 - Jacky 博客</title>
+  <link rel="stylesheet" href="/stylesheets/site.css">
+  <meta name="description" content="" />
+  <meta name="author" content="你的名字">
+</head>
+<body>
+  <header class="academic-header">
+    <div class="container">
+      <div class="header-content">
+        <h1 class="site-title">
+          <a href="/">Jacky 博客</a>
+        </h1>
+        <p class="site-subtitle"></p>
+        <nav class="academic-nav">
+          <a href="/">首页</a>
+          <a href="/archives/">归档</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+  <main class="academic-main">
+    <div class="container">
+      <div class="content-wrapper">
+        <article class="academic-content">
+          <header class="article-header">
+            <h1 class="article-title">极简博客测试</h1>
+            <div class="article-meta">
+              <time class="article-date">2025年1月27日</time>
+              <span class="article-author">作者：你的名字</span>
+              
+              
+                <div class="article-categories">
+                  <span class="meta-label">智能分类：</span>
+                  
+                    <span class="category-link">测试</span>
+                  
+                    <span class="category-link">极简</span>
+                  
+                    <span class="category-link">博客</span>
+                  
+                    <span class="category-link">功能</span>
+                  
+                    <span class="category-link">功能测试</span>
+                  
+                    <span class="category-link">RSS</span>
+                  
+                    <span class="category-link">Sitemap</span>
+                  
+                </div>
+              
+            </div>
+          </header>
+          <div class="article-content">
+            <h2 id="heading">文章内容</h2>
+<h3 id="-">极简博客测试 重複標題</h3>
+<p>这是一个测试极简博客功能的文章。 這個灰色的小字在第一個標題底下</p>
+<h3 id="heading-1">功能特性测试</h3>
+<ol>
+<li><strong>智能分类</strong>：使用jieba分词自动提取关键词作为分类标签</li>
+<li><strong>极简前置数据</strong>：只需要title和description，date从文件名自动提取</li>
+<li><strong>文件监听</strong>：基于SHA256哈希值的智能文件变化检测</li>
+<li><strong>RSS订阅</strong>：自动生成RSS feed</li>
+<li><strong>Sitemap</strong>：自动生成网站地图</li>
+<li><strong>防抖重建</strong>：避免频繁的文件变化导致重复构建</li>
+</ol>
+<h3 id="heading-2">技术实现</h3>
+<ul>
+<li>使用Go语言开发</li>
+<li>基于Goldmark的Markdown解析</li>
+<li>Gin框架提供Web服务</li>
+<li>fsnotify实现文件监听</li>
+<li>gojieba提供中文分词</li>
+<li>模板引擎支持布局和包含</li>
+</ul>
+<h3 id="heading-3">测试内容</h3>
+<p>这篇文章将测试以下功能：</p>
+<ul>
+<li>前置数据解析（title, description, date）</li>
+<li>智能分类标签生成</li>
+<li>Markdown渲染</li>
+<li>模板布局</li>
+<li>导航栏（首页、归档）</li>
+<li>文件监听和自动重建</li>
+<li>RSS feed生成</li>
+<li>Sitemap生成</li>
+</ul>
+<h3 id="heading-4">总结</h3>
+<p>极简博客系统已经成功实现了所有核心功能，包括智能分类、文件监听、RSS和Sitemap等特性。系统运行稳定，功能完整。</p>
+<p>文件监听测试：这个段落是在文件监听模式下添加的，用于测试SHA256哈希值变化检测和自动重建功能。</p>
+
+          </div>
+        </article>
+        <aside class="academic-sidebar">
+          <section class="sidebar-section">
+            <h3>最近文章</h3>
+            <ul class="recent-posts">
+              
+                
+                  <li>
+                    <a href="http://127.0.0.1:8080/2025/07/12/%e6%b5%8b%e8%af%95rss%e5%92%8csitemap%e5%8a%9f%e8%83%bd.html">测试RSS和Sitemap功能</a>
+                    <time>2025-07-12</time>
+                  </li>
+                
+              
+                
+                  <li>
+                    <a href="http://127.0.0.1:8080/2025/01/27/%e6%9e%81%e7%ae%80%e5%8d%9a%e5%ae%a2%e6%b5%8b%e8%af%95.html">极简博客测试</a>
+                    <time>2025-01-27</time>
+                  </li>
+                
+              
+                
+                  <li>
+                    <a href="http://127.0.0.1:8080/2024/07/10/demo.html">极简博客功能测试</a>
+                    <time>2024-07-10</time>
+                  </li>
+                
+              
+            </ul>
+          </section>
+          <section class="sidebar-section">
+            <h3>智能分类</h3>
+            <div class="tag-cloud">
+              
+                <span class="tag">测试</span>
+              
+                <span class="tag">极简</span>
+              
+                <span class="tag">博客</span>
+              
+                <span class="tag">功能</span>
+              
+                <span class="tag">功能测试</span>
+              
+                <span class="tag">RSS</span>
+              
+                <span class="tag">Sitemap</span>
+              
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+  <footer class="academic-footer">
+    <div class="container">
+      <p>&copy; 你的名字 - Jacky 博客</p>
+    </div>
+  </footer>
+</body>
+</html>

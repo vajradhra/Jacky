@@ -2,9 +2,12 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -443,8 +446,22 @@ func ValidateMarkdown(content string) (bool, []string) {
 
 	// 检查代码块是否配对
 	inCodeBlock := false
+	inFrontMatter := false
 	for i, line := range lines {
-		if strings.HasPrefix(strings.TrimSpace(line), "```") {
+		trimmedLine := strings.TrimSpace(line)
+
+		// 检查是否进入或退出前置数据块
+		if trimmedLine == "---" {
+			inFrontMatter = !inFrontMatter
+			continue
+		}
+
+		// 如果在前置数据块内，跳过格式检查
+		if inFrontMatter {
+			continue
+		}
+
+		if strings.HasPrefix(trimmedLine, "```") {
 			if inCodeBlock {
 				inCodeBlock = false
 			} else {
@@ -487,8 +504,7 @@ type Page struct {
 	FrontMatter      map[string]interface{}
 	URL              string
 	Date             time.Time
-	Categories       []string
-	Tags             []string
+	Description      string
 	Excerpt          string
 	ExcerptSeparator string
 }
@@ -564,22 +580,9 @@ func (p *Page) extractFrontMatter() error {
 		}
 	}
 
-	// 分类
-	if categories, ok := p.FrontMatter["categories"].([]interface{}); ok {
-		for _, cat := range categories {
-			if catStr, ok := cat.(string); ok {
-				p.Categories = append(p.Categories, catStr)
-			}
-		}
-	}
-
-	// 标签
-	if tags, ok := p.FrontMatter["tags"].([]interface{}); ok {
-		for _, tag := range tags {
-			if tagStr, ok := tag.(string); ok {
-				p.Tags = append(p.Tags, tagStr)
-			}
-		}
+	// 描述
+	if description, ok := p.FrontMatter["description"].(string); ok {
+		p.Description = description
 	}
 
 	// 摘要分隔符
@@ -629,8 +632,7 @@ type Post struct {
 	FrontMatter      map[string]interface{}
 	URL              string
 	Date             time.Time
-	Categories       []string
-	Tags             []string
+	Description      string
 	Excerpt          string
 	ExcerptSeparator string
 	Slug             string
@@ -705,24 +707,6 @@ func (p *Post) extractFrontMatter() error {
 			p.Date = parsed
 		} else if parsed, err := time.Parse("2006-01-02", dateStr); err == nil {
 			p.Date = parsed
-		}
-	}
-
-	// 分类
-	if categories, ok := p.FrontMatter["categories"].([]interface{}); ok {
-		for _, cat := range categories {
-			if catStr, ok := cat.(string); ok {
-				p.Categories = append(p.Categories, catStr)
-			}
-		}
-	}
-
-	// 标签
-	if tags, ok := p.FrontMatter["tags"].([]interface{}); ok {
-		for _, tag := range tags {
-			if tagStr, ok := tag.(string); ok {
-				p.Tags = append(p.Tags, tagStr)
-			}
 		}
 	}
 
@@ -1178,8 +1162,6 @@ type Site struct {
 	// 新增分页和归档结构体
 	PagedPosts [][]*Post
 	Archives   map[string][]*Post // "2024-07" => []*Post
-	Tags       map[string][]*Post // "go" => []*Post
-	Categories map[string][]*Post // "编程" => []*Post
 	JiebaTags  []string           // 高频词标签云
 	RouteTree  *treemap.Map       // key: 路由path, value: 主路径
 	URLTree    *URLTree           // URL二叉树，用于搜索
@@ -1510,12 +1492,6 @@ func (s *Site) processCollections() {
 
 	// 处理归档
 	s.processArchives()
-
-	// 处理标签
-	s.processTags()
-
-	// 处理分类
-	s.processCategories()
 }
 
 // processPagination 处理分页
@@ -1543,26 +1519,6 @@ func (s *Site) processArchives() {
 	}
 }
 
-// processTags 处理标签
-func (s *Site) processTags() {
-	s.Tags = make(map[string][]*Post)
-	for _, post := range s.Posts {
-		for _, tag := range post.Tags {
-			s.Tags[tag] = append(s.Tags[tag], post)
-		}
-	}
-}
-
-// processCategories 处理分类
-func (s *Site) processCategories() {
-	s.Categories = make(map[string][]*Post)
-	for _, post := range s.Posts {
-		for _, category := range post.Categories {
-			s.Categories[category] = append(s.Categories[category], post)
-		}
-	}
-}
-
 // render 渲染所有内容
 func (s *Site) render() error {
 	// 渲染页面
@@ -1587,16 +1543,6 @@ func (s *Site) render() error {
 	// 渲染归档页面
 	if err := s.renderArchives(); err != nil {
 		return fmt.Errorf("渲染归档失败: %w", err)
-	}
-
-	// 渲染标签页面
-	if err := s.renderTags(); err != nil {
-		return fmt.Errorf("渲染标签失败: %w", err)
-	}
-
-	// 渲染分类页面
-	if err := s.renderCategories(); err != nil {
-		return fmt.Errorf("渲染分类失败: %w", err)
 	}
 
 	return nil
@@ -1630,9 +1576,7 @@ func (s *Site) renderPagination() error {
 				"pages":       s.Pages,
 				"data":        s.Data,
 				"archives":    s.Archives,
-				"tags":        s.Tags,
-				"categories":  s.Categories,
-				"JiebaTags":   s.JiebaTags,
+				"tags":        s.JiebaTags,
 			},
 		}
 
@@ -1693,9 +1637,7 @@ func (s *Site) renderArchives() error {
 			"pages":       s.Pages,
 			"data":        s.Data,
 			"archives":    archives,
-			"tags":        s.Tags,
-			"categories":  s.Categories,
-			"JiebaTags":   s.JiebaTags,
+			"tags":        s.JiebaTags,
 		},
 	}
 	// 设置CurrentData
@@ -1717,186 +1659,6 @@ func (s *Site) renderArchives() error {
 		return fmt.Errorf("写入归档页面失败: %w", err)
 	}
 	log.Printf("写入归档页面: /archives/")
-	return nil
-}
-
-// renderTags 渲染标签页面
-func (s *Site) renderTags() error {
-	tags := s.Tags
-	if len(tags) == 0 {
-		tags = map[string][]*Post{"": {}}
-	}
-	data := map[string]interface{}{
-		"layout": "tag",
-		"title":  "标签",
-		"tags":   tags,
-		"site": map[string]interface{}{
-			"title":       s.Config.Title,
-			"subtitle":    s.Config.Subtitle,
-			"description": s.Config.Description,
-			"author":      s.Config.Author,
-			"url":         s.Config.URL,
-			"posts":       s.Posts,
-			"pages":       s.Pages,
-			"data":        s.Data,
-			"archives":    s.Archives,
-			"tags":        tags,
-			"categories":  s.Categories,
-			"JiebaTags":   s.JiebaTags,
-		},
-	}
-	layout, exists := s.Layouts["tag"]
-	if !exists {
-		return fmt.Errorf("布局 tag 不存在")
-	}
-	content, err := s.Template.Render(layout, data)
-	if err != nil {
-		return fmt.Errorf("渲染标签页面失败: %w", err)
-	}
-	outputPath := filepath.Join(s.Config.Destination, "tags", "index.html")
-	outputDir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
-		return fmt.Errorf("创建目录失败: %w", err)
-	}
-	if err := os.WriteFile(outputPath, []byte(content), 0644); err != nil {
-		return fmt.Errorf("写入标签页面失败: %w", err)
-	}
-	log.Printf("写入标签页面: /tags/")
-	return nil
-}
-
-// renderCategories 渲染分类页面
-func (s *Site) renderCategories() error {
-	categories := s.Categories
-	if len(categories) == 0 {
-		categories = map[string][]*Post{"": {}}
-	}
-	data := map[string]interface{}{
-		"layout":     "category",
-		"title":      "分类",
-		"categories": categories,
-		"site": map[string]interface{}{
-			"title":       s.Config.Title,
-			"subtitle":    s.Config.Subtitle,
-			"description": s.Config.Description,
-			"author":      s.Config.Author,
-			"url":         s.Config.URL,
-			"posts":       s.Posts,
-			"pages":       s.Pages,
-			"data":        s.Data,
-			"archives":    s.Archives,
-			"tags":        s.Tags,
-			"categories":  categories,
-			"JiebaTags":   s.JiebaTags,
-		},
-	}
-	layout, exists := s.Layouts["category"]
-	if !exists {
-		return fmt.Errorf("布局 category 不存在")
-	}
-	content, err := s.Template.Render(layout, data)
-	if err != nil {
-		return fmt.Errorf("渲染分类页面失败: %w", err)
-	}
-	outputPath := filepath.Join(s.Config.Destination, "categories", "index.html")
-	outputDir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
-		return fmt.Errorf("创建目录失败: %w", err)
-	}
-	if err := os.WriteFile(outputPath, []byte(content), 0644); err != nil {
-		return fmt.Errorf("写入分类页面失败: %w", err)
-	}
-	log.Printf("写入分类页面: /categories/")
-	return nil
-}
-
-// renderPage 渲染单个页面
-func (s *Site) renderPage(p *Page) error {
-	// 转换Markdown内容
-	htmlContent, _ := s.Converter.Convert(p.Content)
-	p.RenderedContent = htmlContent
-
-	// 应用布局
-	layoutName := p.Layout
-	if layoutName == "" {
-		layoutName = "default"
-	}
-	layout, exists := s.Layouts[layoutName]
-	if !exists {
-		return fmt.Errorf("布局不存在: %s", layoutName)
-	}
-	data := map[string]interface{}{
-		"page": p,
-		"site": map[string]interface{}{
-			"title":       s.Config.Title,
-			"subtitle":    s.Config.Subtitle,
-			"description": s.Config.Description,
-			"author":      s.Config.Author,
-			"url":         s.Config.URL,
-			"posts":       s.Posts,
-			"pages":       s.Pages,
-			"data":        s.Data,
-			"archives":    s.Archives,
-			"tags":        s.Tags,
-			"categories":  s.Categories,
-			"JiebaTags":   s.JiebaTags,
-		},
-		"content": template.HTML(p.RenderedContent), // 这里必须是 RenderedContent
-	}
-
-	html, err := s.Template.Render(layout, data)
-	if err != nil {
-		return fmt.Errorf("应用布局失败: %w", err)
-	}
-	p.RenderedContent = html
-	return nil
-}
-
-// renderPost 渲染单个文章
-func (s *Site) renderPost(p *Post) error {
-	// 转换Markdown内容
-	htmlContent, err := s.Converter.Convert(p.Content)
-	if err != nil {
-		return fmt.Errorf("转换Markdown失败: %w", err)
-	}
-	p.RenderedContent = htmlContent
-
-	// 强制使用 post.html 布局
-	layoutName := "post"
-	if p.Layout != "" && p.Layout != "default" {
-		layoutName = p.Layout
-	}
-	layout, exists := s.Layouts[layoutName]
-	if !exists {
-		return fmt.Errorf("布局不存在: %s", layoutName)
-	}
-
-	// 准备渲染数据
-	data := map[string]interface{}{
-		"post":    p,
-		"content": template.HTML(p.RenderedContent), // 确保内容为HTML
-		"site": map[string]interface{}{
-			"title":       s.Config.Title,
-			"subtitle":    s.Config.Subtitle,
-			"description": s.Config.Description,
-			"author":      s.Config.Author,
-			"url":         s.Config.URL,
-			"posts":       s.Posts,
-			"pages":       s.Pages,
-			"data":        s.Data,
-			"archives":    s.Archives,
-			"tags":        s.Tags,
-			"categories":  s.Categories,
-			"JiebaTags":   s.JiebaTags,
-		},
-	}
-
-	// 应用布局
-	finalContent, err := s.Template.Render(layout, data)
-	if err != nil {
-		return fmt.Errorf("应用布局失败: %w", err)
-	}
-	p.RenderedContent = finalContent
 	return nil
 }
 
@@ -1972,31 +1734,7 @@ func (s *Site) writePost(p *Post) error {
 	}
 	log.Printf("写入归档副本: %s", archivePath)
 
-	// 3. 分类路径副本 /categories/分类名/年/月/日/slug.html
-	for _, category := range p.Categories {
-		catPath := filepath.Join(s.Config.Destination, "categories", category, p.Date.Format("2006"), p.Date.Format("01"), p.Date.Format("02"), filepath.Base(relativeURL))
-		catDir := filepath.Dir(catPath)
-		if err := os.MkdirAll(catDir, 0755); err != nil {
-			return fmt.Errorf("创建分类输出目录失败: %w", err)
-		}
-		if err := os.WriteFile(catPath, []byte(p.RenderedContent), 0644); err != nil {
-			return fmt.Errorf("写入分类副本失败: %w", err)
-		}
-		log.Printf("写入分类副本: %s", catPath)
-	}
-
-	// 4. 标签路径副本 /tags/标签名/年/月/日/slug.html
-	for _, tag := range p.Tags {
-		tagPath := filepath.Join(s.Config.Destination, "tags", tag, p.Date.Format("2006"), p.Date.Format("01"), p.Date.Format("02"), filepath.Base(relativeURL))
-		tagDir := filepath.Dir(tagPath)
-		if err := os.MkdirAll(tagDir, 0755); err != nil {
-			return fmt.Errorf("创建标签输出目录失败: %w", err)
-		}
-		if err := os.WriteFile(tagPath, []byte(p.RenderedContent), 0644); err != nil {
-			return fmt.Errorf("写入标签副本失败: %w", err)
-		}
-		log.Printf("写入标签副本: %s", tagPath)
-	}
+	// 已移除分类和标签路径副本，使用jieba分词作为智能分类
 
 	return nil
 }
@@ -2563,43 +2301,245 @@ func createNewPage(name string, cfg *Config) error {
 	return os.WriteFile(filename, []byte(frontMatter), 0644)
 }
 
-func watchAndBuild(site *Site, cfg *Config) error {
+// ==================== 文件监听器 ====================
+
+// FileWatcher 增强的文件监听器，支持SHA256哈希值比较
+type FileWatcher struct {
+	watcher    *fsnotify.Watcher
+	site       *Site
+	config     *Config
+	fileHashes map[string]string // 文件路径 -> SHA256哈希值
+	mu         sync.RWMutex
+	debounce   time.Duration
+	timer      *time.Timer
+	rebuildCh  chan struct{}
+}
+
+// NewFileWatcher 创建新的文件监听器
+func NewFileWatcher(site *Site, cfg *Config) (*FileWatcher, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("创建文件监听器失败: %w", err)
 	}
-	defer watcher.Close()
 
-	// 需要监听的目录
+	fw := &FileWatcher{
+		watcher:    watcher,
+		site:       site,
+		config:     cfg,
+		fileHashes: make(map[string]string),
+		debounce:   500 * time.Millisecond, // 500ms防抖
+		rebuildCh:  make(chan struct{}, 1),
+	}
+
+	// 初始化文件哈希值
+	if err := fw.initializeFileHashes(); err != nil {
+		watcher.Close()
+		return nil, fmt.Errorf("初始化文件哈希值失败: %w", err)
+	}
+
+	return fw, nil
+}
+
+// initializeFileHashes 初始化所有监听文件的哈希值
+func (fw *FileWatcher) initializeFileHashes() error {
 	dirs := []string{".", "_posts", "_layouts", "_includes", "_data"}
+
 	for _, dir := range dirs {
-		if err := watcher.Add(dir); err != nil && !os.IsNotExist(err) {
+		if err := fw.watcher.Add(dir); err != nil && !os.IsNotExist(err) {
+			return fmt.Errorf("添加监听目录失败 %s: %w", dir, err)
+		}
+
+		// 计算目录下所有文件的哈希值
+		if err := fw.calculateDirHashes(dir); err != nil {
+			return fmt.Errorf("计算目录哈希值失败 %s: %w", dir, err)
+		}
+	}
+
+	return nil
+}
+
+// calculateDirHashes 计算目录下所有文件的哈希值
+func (fw *FileWatcher) calculateDirHashes(dir string) error {
+	return filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
 			return err
 		}
+
+		// 跳过目录和隐藏文件
+		if info.IsDir() || strings.HasPrefix(filepath.Base(path), ".") {
+			return nil
+		}
+
+		// 跳过_site目录
+		if strings.Contains(path, "_site") {
+			return nil
+		}
+
+		hash, err := fw.calculateFileHash(path)
+		if err != nil {
+			return fmt.Errorf("计算文件哈希值失败 %s: %w", path, err)
+		}
+
+		fw.mu.Lock()
+		fw.fileHashes[path] = hash
+		fw.mu.Unlock()
+
+		return nil
+	})
+}
+
+// calculateFileHash 计算单个文件的SHA256哈希值
+func (fw *FileWatcher) calculateFileHash(filePath string) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	hash := sha256.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return "", err
 	}
 
+	return hex.EncodeToString(hash.Sum(nil)), nil
+}
+
+// hasFileChanged 检查文件是否发生变化
+func (fw *FileWatcher) hasFileChanged(filePath string) (bool, error) {
+	newHash, err := fw.calculateFileHash(filePath)
+	if err != nil {
+		return false, err
+	}
+
+	fw.mu.RLock()
+	oldHash, exists := fw.fileHashes[filePath]
+	fw.mu.RUnlock()
+
+	if !exists {
+		// 新文件
+		fw.mu.Lock()
+		fw.fileHashes[filePath] = newHash
+		fw.mu.Unlock()
+		return true, nil
+	}
+
+	if oldHash != newHash {
+		// 文件内容发生变化
+		fw.mu.Lock()
+		fw.fileHashes[filePath] = newHash
+		fw.mu.Unlock()
+		return true, nil
+	}
+
+	return false, nil
+}
+
+// removeFileHash 移除文件的哈希值记录（文件被删除时）
+func (fw *FileWatcher) removeFileHash(filePath string) {
+	fw.mu.Lock()
+	delete(fw.fileHashes, filePath)
+	fw.mu.Unlock()
+}
+
+// debouncedRebuild 防抖重建
+func (fw *FileWatcher) debouncedRebuild() {
+	if fw.timer != nil {
+		fw.timer.Stop()
+	}
+
+	fw.timer = time.AfterFunc(fw.debounce, func() {
+		select {
+		case fw.rebuildCh <- struct{}{}:
+		default:
+		}
+	})
+}
+
+// Start 开始监听文件变化
+func (fw *FileWatcher) Start() error {
 	fmt.Println("[watch] 正在监听文件变化，按 Ctrl+C 退出...")
+
+	// 启动重建协程
+	go fw.rebuildWorker()
+
 	for {
 		select {
-		case event, ok := <-watcher.Events:
+		case event, ok := <-fw.watcher.Events:
 			if !ok {
 				return nil
 			}
-			if event.Op&fsnotify.Write == fsnotify.Write || event.Op&fsnotify.Create == fsnotify.Create || event.Op&fsnotify.Remove == fsnotify.Remove {
-				fmt.Printf("[watch] 检测到变动: %s，自动重建...\n", event.Name)
-				if err := site.Build(); err != nil {
-					fmt.Println("[watch] 自动重建失败:", err)
-				} else {
-					fmt.Println("[watch] 自动重建完成！")
-				}
-			}
-		case err, ok := <-watcher.Errors:
+			fw.handleFileEvent(event)
+
+		case err, ok := <-fw.watcher.Errors:
 			if !ok {
 				return nil
 			}
-			fmt.Println("[watch] 错误:", err)
+			fmt.Printf("[watch] 错误: %v\n", err)
 		}
 	}
+}
+
+// handleFileEvent 处理文件事件
+func (fw *FileWatcher) handleFileEvent(event fsnotify.Event) {
+	// 跳过隐藏文件和_site目录
+	if strings.HasPrefix(filepath.Base(event.Name), ".") ||
+		strings.Contains(event.Name, "_site") {
+		return
+	}
+
+	switch {
+	case event.Op&fsnotify.Write == fsnotify.Write:
+		// 文件写入
+		if changed, err := fw.hasFileChanged(event.Name); err != nil {
+			fmt.Printf("[watch] 检查文件变化失败 %s: %v\n", event.Name, err)
+		} else if changed {
+			fmt.Printf("[watch] 检测到文件变化: %s\n", event.Name)
+			fw.debouncedRebuild()
+		}
+
+	case event.Op&fsnotify.Create == fsnotify.Create:
+		// 文件创建
+		if !strings.HasPrefix(filepath.Base(event.Name), ".") {
+			fmt.Printf("[watch] 检测到新文件: %s\n", event.Name)
+			fw.debouncedRebuild()
+		}
+
+	case event.Op&fsnotify.Remove == fsnotify.Remove:
+		// 文件删除
+		fmt.Printf("[watch] 检测到文件删除: %s\n", event.Name)
+		fw.removeFileHash(event.Name)
+		fw.debouncedRebuild()
+
+	case event.Op&fsnotify.Rename == fsnotify.Rename:
+		// 文件重命名
+		fmt.Printf("[watch] 检测到文件重命名: %s\n", event.Name)
+		fw.removeFileHash(event.Name)
+		fw.debouncedRebuild()
+	}
+}
+
+// rebuildWorker 重建工作协程
+func (fw *FileWatcher) rebuildWorker() {
+	for range fw.rebuildCh {
+		fmt.Println("[watch] 开始自动重建...")
+		start := time.Now()
+
+		if err := fw.site.Build(); err != nil {
+			fmt.Printf("[watch] 自动重建失败: %v\n", err)
+		} else {
+			duration := time.Since(start)
+			fmt.Printf("[watch] 自动重建完成！耗时: %v\n", duration)
+		}
+	}
+}
+
+// Close 关闭文件监听器
+func (fw *FileWatcher) Close() error {
+	if fw.timer != nil {
+		fw.timer.Stop()
+	}
+	close(fw.rebuildCh)
+	return fw.watcher.Close()
 }
 
 // ==================== 主程序 ====================
@@ -2703,8 +2643,13 @@ func main() {
 
 	// 处理监听模式
 	if *flagWatch {
-		fmt.Println("[watch] 正在监听文件变化，按 Ctrl+C 退出...")
-		if err := watchAndBuild(site, cfg); err != nil {
+		fileWatcher, err := NewFileWatcher(site, cfg)
+		if err != nil {
+			log.Fatalf("创建文件监听器失败: %v", err)
+		}
+		defer fileWatcher.Close()
+
+		if err := fileWatcher.Start(); err != nil {
 			log.Fatalf("监听失败: %v", err)
 		}
 		return
@@ -2963,14 +2908,7 @@ func (s *Site) buildRouteTree() {
 		s.RouteTree.Put(relativeURL, relativeURL)
 		archivePath := fmt.Sprintf("/archives/%04d/%02d/%02d/%s", post.Date.Year(), post.Date.Month(), post.Date.Day(), filepath.Base(relativeURL))
 		s.RouteTree.Put(archivePath, relativeURL)
-		for _, cat := range post.Categories {
-			catPath := fmt.Sprintf("/categories/%s/%04d/%02d/%02d/%s", url.PathEscape(cat), post.Date.Year(), post.Date.Month(), post.Date.Day(), filepath.Base(relativeURL))
-			s.RouteTree.Put(catPath, relativeURL)
-		}
-		for _, tag := range post.Tags {
-			tagPath := fmt.Sprintf("/tags/%s/%04d/%02d/%02d/%s", url.PathEscape(tag), post.Date.Year(), post.Date.Month(), post.Date.Day(), filepath.Base(relativeURL))
-			s.RouteTree.Put(tagPath, relativeURL)
-		}
+		// 已移除分类和标签路径，使用jieba分词作为智能分类
 	}
 }
 
@@ -2984,17 +2922,7 @@ func (s *Site) buildURLTree() {
 		archivePath := fmt.Sprintf("/archives/%04d/%02d/%02d/%s", post.Date.Year(), post.Date.Month(), post.Date.Day(), filepath.Base(relativeURL))
 		s.URLTree.Insert(archivePath, post)
 
-		// 插入分类路径
-		for _, cat := range post.Categories {
-			catPath := fmt.Sprintf("/categories/%s/%04d/%02d/%02d/%s", url.PathEscape(cat), post.Date.Year(), post.Date.Month(), post.Date.Day(), filepath.Base(relativeURL))
-			s.URLTree.Insert(catPath, post)
-		}
-
-		// 插入标签路径
-		for _, tag := range post.Tags {
-			tagPath := fmt.Sprintf("/tags/%s/%04d/%02d/%02d/%s", url.PathEscape(tag), post.Date.Year(), post.Date.Month(), post.Date.Day(), filepath.Base(relativeURL))
-			s.URLTree.Insert(tagPath, post)
-		}
+		// 已移除分类和标签路径，使用jieba分词作为智能分类
 	}
 
 	log.Printf("URL二叉树构建完成，包含 %d 个文章节点", len(s.Posts))
@@ -3030,9 +2958,6 @@ func (s *Site) generateRSSFeed() error {
       <guid>{{ $.URL }}/{{ .URL }}</guid>
       <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" }}</pubDate>
       <description><![CDATA[{{ .Excerpt }}]]></description>
-      {{ if .Categories }}
-      <category>{{ index .Categories 0 }}</category>
-      {{ end }}
     </item>
     {{ end }}
   </channel>
@@ -3140,5 +3065,104 @@ func (s *Site) generateSitemap() error {
 	}
 
 	log.Printf("生成Sitemap: %s", sitemapPath)
+	return nil
+}
+
+// renderPage 渲染单个页面
+func (s *Site) renderPage(p *Page) error {
+	// 转换Markdown内容
+	htmlContent, _ := s.Converter.Convert(p.Content)
+	p.RenderedContent = htmlContent
+
+	// 应用布局
+	layoutName := p.Layout
+	if layoutName == "" {
+		layoutName = "default"
+	}
+	layout, exists := s.Layouts[layoutName]
+	if !exists {
+		return fmt.Errorf("布局不存在: %s", layoutName)
+	}
+	data := map[string]interface{}{
+		"page": p,
+		"site": map[string]interface{}{
+			"title":       s.Config.Title,
+			"subtitle":    s.Config.Subtitle,
+			"description": s.Config.Description,
+			"author":      s.Config.Author,
+			"url":         s.Config.URL,
+			"posts":       s.Posts,
+			"pages":       s.Pages,
+			"data":        s.Data,
+			"archives":    s.Archives,
+			"JiebaTags":   s.JiebaTags,
+		},
+		"content": template.HTML(p.RenderedContent),
+	}
+
+	html, err := s.Template.Render(layout, data)
+	if err != nil {
+		return fmt.Errorf("应用布局失败: %w", err)
+	}
+	p.RenderedContent = html
+	return nil
+}
+
+// renderPost 渲染单个文章
+func (s *Site) renderPost(p *Post) error {
+	// 自动去除正文开头的一级标题，避免和页面主标题重复
+	lines := strings.Split(p.Content, "\n")
+	newLines := make([]string, 0, len(lines))
+	removed := false
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if !removed && (strings.HasPrefix(trimmed, "# ") || strings.HasPrefix(trimmed, "#\t")) {
+			removed = true
+			continue // 跳过第一个一级标题
+		}
+		newLines = append(newLines, line)
+	}
+	contentNoH1 := strings.Join(newLines, "\n")
+
+	// 转换Markdown内容
+	htmlContent, err := s.Converter.Convert(contentNoH1)
+	if err != nil {
+		return fmt.Errorf("转换Markdown失败: %w", err)
+	}
+	p.RenderedContent = htmlContent
+
+	// 强制使用 post.html 布局
+	layoutName := "post"
+	if p.Layout != "" && p.Layout != "default" {
+		layoutName = p.Layout
+	}
+	layout, exists := s.Layouts[layoutName]
+	if !exists {
+		return fmt.Errorf("布局不存在: %s", layoutName)
+	}
+
+	// 准备渲染数据
+	data := map[string]interface{}{
+		"post":    p,
+		"content": template.HTML(p.RenderedContent),
+		"site": map[string]interface{}{
+			"title":       s.Config.Title,
+			"subtitle":    s.Config.Subtitle,
+			"description": s.Config.Description,
+			"author":      s.Config.Author,
+			"url":         s.Config.URL,
+			"posts":       s.Posts,
+			"pages":       s.Pages,
+			"data":        s.Data,
+			"archives":    s.Archives,
+			"JiebaTags":   s.JiebaTags,
+		},
+	}
+
+	html, err := s.Template.Render(layout, data)
+	if err != nil {
+		return fmt.Errorf("应用布局失败: %w", err)
+	}
+	p.RenderedContent = html
 	return nil
 }

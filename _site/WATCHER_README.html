@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> - Jacky 博客</title>
+  
+  
+  <link rel="stylesheet" href="/stylesheets/site.css">
+  
+  
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+  
+  
+  <link href="/favicon.png" rel="icon">
+  
+  
+  <link href="/feed.xml" rel="alternate" type="application/rss+xml" title="Jacky 博客" />
+  
+  <meta name="description" content="Jacky 静态网站生成器演示" />
+  <meta name="author" content="你的名字">
+</head>
+<body>
+  
+  <header class="academic-header">
+    <div class="container">
+      <div class="header-content">
+        <h1 class="site-title">
+          <a href="/">Jacky 博客</a>
+        </h1>
+        <p class="site-subtitle"></p>
+        <nav class="academic-nav">
+          <a href="/">首页</a>
+          <a href="/archives/">归档</a>
+          <a href="/categories/">分类</a>
+          <a href="/tags/">标签</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  
+  <main class="academic-main">
+    <div class="container">
+      <div class="content-wrapper">
+        <article class="academic-content">
+          <h1 id="heading">文件监听功能说明</h1>
+<h2 id="heading-1">概述</h2>
+<p>新增的SHA256文件监听功能提供了智能的文件变化检测和自动重建能力，大大提高了开发效率。</p>
+<h2 id="heading-2">核心特性</h2>
+<h3 id="1-sha256">1. SHA256哈希值比较</h3>
+<ul>
+<li>使用SHA256算法计算文件哈希值</li>
+<li>只有当文件内容真正发生变化时才触发重建</li>
+<li>避免因文件时间戳变化但内容未变而导致的无效重建</li>
+</ul>
+<h3 id="2-">2. 防抖机制</h3>
+<ul>
+<li>500ms防抖延迟，避免频繁重建</li>
+<li>在短时间内多次文件变化时，只执行最后一次重建</li>
+<li>减少系统资源消耗</li>
+</ul>
+<h3 id="3-">3. 智能监听</h3>
+<ul>
+<li>自动监听关键目录：<code>.</code>, <code>_posts</code>, <code>_layouts</code>, <code>_includes</code>, <code>_data</code></li>
+<li>跳过隐藏文件（以<code>.</code>开头）</li>
+<li>跳过输出目录（<code>_site</code>）</li>
+<li>支持文件创建、修改、删除、重命名事件</li>
+</ul>
+<h3 id="4-">4. 详细日志</h3>
+<ul>
+<li>显示文件变化类型和路径</li>
+<li>显示重建耗时</li>
+<li>错误信息详细记录</li>
+</ul>
+<h2 id="heading-3">使用方法</h2>
+<h3 id="heading-4">基本监听模式</h3>
+<pre><code class="language-bash">./jacky.exe --watch
+</code></pre>
+<h3 id="heading-5">同时启动服务器和监听</h3>
+<pre><code class="language-bash">./jacky.exe --serve --watch
+</code></pre>
+<h3 id="heading-6">自定义端口和主机</h3>
+<pre><code class="language-bash">./jacky.exe --serve --watch --port 8080 --host 0.0.0.0
+</code></pre>
+<h2 id="heading-7">技术实现</h2>
+<h3 id="filewatcher">FileWatcher结构体</h3>
+<pre><code class="language-go">type FileWatcher struct {
+    watcher    *fsnotify.Watcher
+    site       *Site
+    config     *Config
+    fileHashes map[string]string // 文件路径 -&gt; SHA256哈希值
+    mu         sync.RWMutex
+    debounce   time.Duration
+    timer      *time.Timer
+    rebuildCh  chan struct{}
+}
+</code></pre>
+<h3 id="heading-8">主要方法</h3>
+<h4 id="newfilewatchersite-site-cfg-config-filewatcher-error"><code>NewFileWatcher(site *Site, cfg *Config) (*FileWatcher, error)</code></h4>
+<p>创建新的文件监听器实例，初始化文件哈希值。</p>
+<h4 id="calculatefilehashfilepath-string-string-error"><code>calculateFileHash(filePath string) (string, error)</code></h4>
+<p>计算单个文件的SHA256哈希值。</p>
+<h4 id="hasfilechangedfilepath-string-bool-error"><code>hasFileChanged(filePath string) (bool, error)</code></h4>
+<p>检查文件是否发生变化，通过比较哈希值判断。</p>
+<h4 id="handlefileeventevent-fsnotifyevent"><code>handleFileEvent(event fsnotify.Event)</code></h4>
+<p>处理文件系统事件，根据事件类型执行相应操作。</p>
+<h4 id="debouncedrebuild"><code>debouncedRebuild()</code></h4>
+<p>防抖重建，避免频繁触发重建操作。</p>
+<h2 id="heading-9">性能优化</h2>
+<h3 id="1-">1. 并发安全</h3>
+<ul>
+<li>使用读写锁保护哈希值映射</li>
+<li>重建操作在独立协程中执行</li>
+<li>避免阻塞文件监听主循环</li>
+</ul>
+<h3 id="2--1">2. 内存优化</h3>
+<ul>
+<li>及时清理已删除文件的哈希值记录</li>
+<li>使用通道进行协程间通信</li>
+<li>避免内存泄漏</li>
+</ul>
+<h3 id="3-io">3. 文件I/O优化</h3>
+<ul>
+<li>只在必要时计算文件哈希值</li>
+<li>使用缓冲I/O读取文件</li>
+<li>跳过不必要的文件类型</li>
+</ul>
+<h2 id="heading-10">配置选项</h2>
+<h3 id="heading-11">防抖时间</h3>
+<p>默认防抖时间为500ms，可以通过修改<code>debounce</code>字段调整：</p>
+<pre><code class="language-go">fw.debounce = 1 * time.Second // 设置为1秒
+</code></pre>
+<h3 id="heading-12">监听目录</h3>
+<p>默认监听目录可以通过修改<code>initializeFileHashes</code>方法中的<code>dirs</code>切片来调整：</p>
+<pre><code class="language-go">dirs := []string{&quot;.&quot;, &quot;_posts&quot;, &quot;_layouts&quot;, &quot;_includes&quot;, &quot;_data&quot;, &quot;custom_dir&quot;}
+</code></pre>
+<h2 id="heading-13">故障排除</h2>
+<h3 id="heading-14">常见问题</h3>
+<ol>
+<li>
+<p><strong>文件变化未检测到</strong></p>
+<ul>
+<li>检查文件是否在监听目录中</li>
+<li>确认文件不是隐藏文件</li>
+<li>验证文件路径不包含<code>_site</code></li>
+</ul>
+</li>
+<li>
+<p><strong>重建过于频繁</strong></p>
+<ul>
+<li>增加防抖时间</li>
+<li>检查是否有编辑器自动保存功能</li>
+<li>确认文件内容确实发生了变化</li>
+</ul>
+</li>
+<li>
+<p><strong>内存使用过高</strong></p>
+<ul>
+<li>检查是否有大量文件被监听</li>
+<li>确认哈希值映射被正确清理</li>
+<li>监控文件监听器是否正确关闭</li>
+</ul>
+</li>
+</ol>
+<h3 id="heading-15">调试模式</h3>
+<p>可以通过修改日志输出来启用更详细的调试信息：</p>
+<pre><code class="language-go">fmt.Printf(&quot;[watch] 文件哈希值: %s -&gt; %s\n&quot;, filePath, hash)
+</code></pre>
+<h2 id="heading-16">扩展功能</h2>
+<h3 id="1--1">1. 配置文件监听</h3>
+<p>可以添加配置文件来支持更灵活的监听设置：</p>
+<pre><code class="language-yaml">watcher:
+  debounce: 500ms
+  directories:
+    - &quot;.&quot;
+    - &quot;_posts&quot;
+    - &quot;_layouts&quot;
+  exclude:
+    - &quot;*.tmp&quot;
+    - &quot;.git/*&quot;
+</code></pre>
+<h3 id="2--2">2. 热重载支持</h3>
+<p>可以扩展支持模板热重载，无需重启服务器：</p>
+<pre><code class="language-go">// 在handleFileEvent中添加模板重载逻辑
+if strings.HasSuffix(event.Name, &quot;.html&quot;) {
+    fw.reloadTemplate(event.Name)
+}
+</code></pre>
+<h3 id="3--1">3. 增量构建</h3>
+<p>可以实现增量构建，只重建受影响的页面：</p>
+<pre><code class="language-go">// 分析文件依赖关系，只重建相关页面
+affectedPages := fw.analyzeDependencies(event.Name)
+fw.rebuildPages(affectedPages)
+</code></pre>
+<h2 id="heading-17">总结</h2>
+<p>新的SHA256文件监听功能提供了高效、智能的文件变化检测机制，通过哈希值比较和防抖机制，避免了不必要的重建操作，显著提升了开发体验和系统性能。</p>
+
+        </article>
+        
+        <aside class="academic-sidebar">
+          <section class="sidebar-section">
+            <h3>最近文章</h3>
+            <ul class="recent-posts">
+              
+                
+                  <li>
+                    <a href="http://127.0.0.1:8080/2025/07/12/%e6%b5%8b%e8%af%95rss%e5%92%8csitemap%e5%8a%9f%e8%83%bd.html">测试RSS和Sitemap功能</a>
+                    <time>2025-07-12</time>
+                  </li>
+                
+              
+                
+                  <li>
+                    <a href="http://127.0.0.1:8080/2025/01/27/%e6%9e%81%e7%ae%80%e5%8d%9a%e5%ae%a2%e6%b5%8b%e8%af%95.html">极简博客测试</a>
+                    <time>2025-01-27</time>
+                  </li>
+                
+              
+                
+                  <li>
+                    <a href="http://127.0.0.1:8080/2024/07/10/demo.html">极简博客功能测试</a>
+                    <time>2024-07-10</time>
+                  </li>
+                
+              
+            </ul>
+          </section>
+          
+          <section class="sidebar-section">
+            <h3>标签</h3>
+            <div class="tag-cloud">
+              
+                <span class="tag">测试</span>
+              
+                <span class="tag">极简</span>
+              
+                <span class="tag">博客</span>
+              
+                <span class="tag">功能</span>
+              
+                <span class="tag">功能测试</span>
+              
+                <span class="tag">RSS</span>
+              
+                <span class="tag">Sitemap</span>
+              
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  
+  <footer class="academic-footer">
+    <div class="container">
+      <p>&copy; 你的名字 - Jacky 博客</p>
+    </div>
+  </footer>
+</body>
+</html>

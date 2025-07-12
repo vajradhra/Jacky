@@ -2,26 +2,10 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ .site.title }}</title>
-  
-  <!-- Academic CSS -->
+  <title>{{ .title }} - {{ .site.title }}</title>
   <link rel="stylesheet" href="/stylesheets/site.css">
-  
-  <!-- Academic Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
-  
-  <!-- Favicon -->
-  <link href="/favicon.png" rel="icon">
-  
-  <!-- RSS -->
-  <link href="/feed.xml" rel="alternate" type="application/rss+xml" title="{{ .site.title }}" />
-  
-  <meta name="description" content="{{ .site.description }}" />
-  <meta name="author" content="{{ .site.author }}">
 </head>
 <body>
-  <!-- Academic Header -->
   <header class="academic-header">
     <div class="container">
       <div class="header-content">
@@ -32,14 +16,10 @@
         <nav class="academic-nav">
           <a href="/">首页</a>
           <a href="/archives/">归档</a>
-          <a href="/categories/">分类</a>
-          <a href="/tags/">标签</a>
         </nav>
       </div>
     </div>
   </header>
-
-  <!-- Main Content -->
   <main class="academic-main">
     <div class="container">
       <div class="content-wrapper">
@@ -54,12 +34,8 @@
                     </h2>
                     <div class="article-meta">
                       <time class="article-date">{{ $post.Date.Format "2006年1月2日" }}</time>
-                      {{ if $post.Categories }}
-                        <span class="article-category">{{ index $post.Categories 0 }}</span>
-                      {{ end }}
                     </div>
                   </header>
-                  
                   {{ if $post.Excerpt }}
                     <div class="article-excerpt">
                       <p>{{ $post.Excerpt }}</p>
@@ -71,7 +47,6 @@
             {{ end }}
           </div>
         </div>
-        
         <aside class="academic-sidebar">
           <section class="sidebar-section">
             <h3>最近文章</h3>
@@ -86,18 +61,8 @@
               {{ end }}
             </ul>
           </section>
-          
           <section class="sidebar-section">
-            <h3>分类</h3>
-            <ul class="category-list">
-              {{ range $category, $posts := .site.categories }}
-                <li><a href="/categories/{{ $category }}/">{{ $category }} ({{ len $posts }})</a></li>
-              {{ end }}
-            </ul>
-          </section>
-          
-          <section class="sidebar-section">
-            <h3>标签</h3>
+            <h3>智能分类</h3>
             <div class="tag-cloud">
               {{ range .site.JiebaTags }}
                 <span class="tag">{{ . }}</span>
@@ -108,8 +73,6 @@
       </div>
     </div>
   </main>
-
-  <!-- Academic Footer -->
   <footer class="academic-footer">
     <div class="container">
       <p>&copy; {{ .site.author }} - {{ .site.title }}</p>

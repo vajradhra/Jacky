@@ -23,6 +23,13 @@
   </url>
   
   <url>
+    <loc>http://127.0.0.1:8080/WATCHER_README.html</loc>
+    <lastmod>2025-07-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
     <loc>http://127.0.0.1:8080/index.html</loc>
     <lastmod>2025-07-12</lastmod>
     <changefreq>weekly</changefreq>
@@ -30,7 +37,28 @@
   </url>
   
   <url>
+    <loc>http://127.0.0.1:8080/test_blog.html</loc>
+    <lastmod>2025-07-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://127.0.0.1:8080/test_watcher.html</loc>
+    <lastmod>2025-07-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
     <loc>http://127.0.0.1:8080//2025/07/12/测试rss和sitemap功能.html</loc>
+    <lastmod>2025-07-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://127.0.0.1:8080//2025/01/27/极简博客测试.html</loc>
     <lastmod>2025-07-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
