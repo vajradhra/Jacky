@@ -1,0 +1,395 @@
+/* Universal Box-Sizing */
+* {
+    box-sizing: border-box;
+}
+
+/* General Body and Typography */
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background: #f8f9fa; /* Light gray background */
+    color: #343a40; /* Dark gray text */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.site {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #ffffff; /* White content background */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Enhanced shadow */
+    border-radius: 8px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    transition: box-shadow 0.3s ease; /* Smooth shadow transition */
+}
+
+.site:hover {
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12); /* Slightly larger shadow on hover */
+}
+
+/* Header */
+header {
+    background: #007bff; /* Primary blue */
+    color: #ffffff;
+    padding: 20px 30px;
+    border-radius: 8px 8px 0 0;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5em;
+    font-weight: 700;
+}
+
+header h1 a {
+    color: #ffffff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+header h1 a:hover {
+    color: #e9ecef;
+}
+
+header p {
+    font-size: 1.1em;
+    opacity: 0.9;
+    margin-top: 5px;
+}
+
+/* Main Content */
+main {
+    padding: 30px;
+    overflow-wrap: break-word; /* Ensures long words break to prevent overflow */
+    word-break: break-all; /* Breaks words at any character to prevent overflow */
+}
+
+/* Responsive tables */
+main table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+    display: block; /* Allows horizontal scrolling on small screens */
+    overflow-x: auto; /* Adds scrollbar if content overflows */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+main th,
+main td {
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    text-align: left;
+}
+
+main th {
+    background-color: #e9ecef;
+    font-weight: bold;
+}
+
+/* Responsive images */
+main img {
+    max-width: 100%;
+    height: auto;
+    display: block; /* Remove extra space below images */
+    margin: 0 auto; /* Center images */
+}
+
+/* Handle long words and code blocks */
+main p,
+main li {
+    word-wrap: break-word;
+}
+
+main pre {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+    color: #007bff; /* Primary blue for headings */
+    margin-top: 1.8em; /* Increased top margin for better separation */
+    margin-bottom: 0.8em;
+    font-weight: 600;
+}
+
+p {
+    margin-bottom: 1.2em; /* Increased bottom margin for paragraphs */
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease, transform 0.2s ease; /* Added transform for subtle hover */
+}
+
+a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+    transform: translateY(-1px); /* Subtle lift on hover */
+}
+
+ul {
+    list-style-type: disc;
+    margin-left: 25px; /* Slightly increased margin */
+    margin-bottom: 1.2em;
+}
+
+ol {
+    list-style-type: decimal;
+    margin-left: 25px; /* Slightly increased margin */
+    margin-bottom: 1.2em;
+}
+
+code {
+    background-color: #e9ecef;
+    padding: 3px 6px; /* Slightly increased padding */
+    border-radius: 4px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 0.9em;
+    color: #c22d2d; /* A subtle red for inline code */
+}
+
+pre {
+    background-color: #212529;
+    color: #f8f9fa;
+    padding: 18px; /* Slightly increased padding */
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-bottom: 1.8em; /* Increased bottom margin */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for code blocks */
+}
+
+pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+    font-size: 1em;
+}
+
+/* Feature Grid */
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+    margin-bottom: 40px;
+}
+
+.feature-card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.feature-card h3 {
+    color: #007bff;
+    font-size: 1.5em;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.feature-card p {
+    color: #6c757d;
+    font-size: 0.95em;
+}
+
+/* Footer */
+footer {
+    background: #343a40; /* Dark gray */
+    color: #ffffff;
+    padding: 20px;
+    text-align: center;
+    border-radius: 0 0 8px 8px;
+    margin-top: 30px;
+}
+
+footer p {
+    margin: 0;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+/* Container for consistent spacing */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header Navigation */
+.main-nav {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+}
+
+.main-nav a {
+    color: #ffffff;
+    font-size: 1.1em;
+    font-weight: 500;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.main-nav a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+/* Main Content Layout (CSS Grid) */
+.main-content-wrapper {
+    background: #ffffff; /* White content background */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Enhanced shadow */
+    border-radius: 8px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    transition: box-shadow 0.3s ease; /* Smooth shadow transition */
+}
+
+.main-content-wrapper:hover {
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12); /* Slightly larger shadow on hover */
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 300px; /* Main content and sidebar */
+    gap: 40px;
+    padding: 30px;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    padding-left: 20px;
+    border-left: 1px solid #e0e0e0;
+}
+
+.sidebar h3 {
+    color: #007bff;
+    font-size: 1.4em;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+}
+
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.tag-cloud .tag {
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.tag-cloud .tag:hover {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+.recent-posts {
+    list-style: none;
+    padding: 0;
+}
+
+.recent-posts li {
+    margin-bottom: 12px;
+}
+
+.recent-posts li a {
+    color: #343a40;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.recent-posts li a:hover {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+.recent-posts li time {
+    display: block;
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 3px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .main-content {
+        grid-template-columns: 1fr; /* Stack main content and sidebar on smaller screens */
+        padding: 20px;
+    }
+
+    .sidebar {
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid #e0e0e0;
+        padding-top: 20px;
+        margin-top: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .site {
+        margin: 15px;
+        padding: 15px;
+    }
+
+    header {
+        padding: 15px 20px;
+    }
+
+    header h1 {
+        font-size: 2em;
+    }
+
+    header p {
+        font-size: 1em;
+    }
+
+    main {
+        padding: 20px;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr; /* Stack cards on small screens */
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.8em;
+    }
+
+    .main-nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

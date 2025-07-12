@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>{{ .Title }} - {{ .site.title }}</title>
+  <link rel="stylesheet" href="/stylesheets/site.css">
+</head>
+<body>
+  <div class="site">
+    <header>
+      <h1><a href="/">{{ .site.title }}</a></h1>
+      <p>{{ .site.subtitle }}</p>
+    </header>
+    <main>
+      <h1>归档</h1>
+      {{ if .archives }}
+        {{ range $yearMonth, $posts := .archives }}
+          <h2>{{ $yearMonth }}</h2>
+          <ul>
+            {{ range $posts }}
+              <li>
+                <time>{{ .Date.Format "2006-01-02" }}</time>
+                <a href="{{ .URL }}">{{ .Title }}</a>
+              </li>
+            {{ end }}
+          </ul>
+        {{ end }}
+      {{ else }}
+        <p class="empty-tip">暂无归档内容。</p>
+      {{ end }}
+    </main>
+    <footer>
+      <p>&copy; {{ .site.author }} - {{ .site.title }}</p>
+    </footer>
+  </div>
+</body>
+</html> 

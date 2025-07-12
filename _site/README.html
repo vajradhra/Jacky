@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> - Jacky 博客</title>
+  
+  
+  <link rel="stylesheet" href="/stylesheets/site.css">
+  
+  
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+  
+  
+  <link href="/favicon.png" rel="icon">
+  
+  
+  <link href="/feed.xml" rel="alternate" type="application/rss+xml" title="Jacky 博客" />
+  
+  <meta name="description" content="" />
+  <meta name="author" content="你的名字">
+</head>
+<body>
+  
+  <header class="academic-header">
+    <div class="container">
+      <div class="header-content">
+        <h1 class="site-title">
+          <a href="/">Jacky 博客</a>
+        </h1>
+        <p class="site-subtitle"></p>
+        <nav class="academic-nav">
+          <a href="/">首页</a>
+          <a href="/archives/">归档</a>
+          <a href="/categories/">分类</a>
+          <a href="/tags/">标签</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  
+  <main class="academic-main">
+    <div class="container">
+      <div class="content-wrapper">
+        <article class="academic-content">
+          <header class="article-header">
+            <h1 class="article-title"></h1>
+            <div class="article-meta">
+              <time class="article-date"></time>
+              <span class="article-author">作者：你的名字</span>
+              
+              
+            </div>
+          </header>
+          
+          <div class="article-content">
+            <p>这里是文章内容&hellip;</p>
+<h2 id="heading">二级标题</h2>
+<p>更多内容&hellip;</p>
+<pre><code>
+### 布局模板
+
+布局文件使用Go的HTML模板语法：
+
+```html
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;{{.page.Title}} - {{.site.Title}}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;
+        &lt;h1&gt;{{.site.Title}}&lt;/h1&gt;
+    &lt;/header&gt;
+    
+    &lt;main&gt;
+        {{.content}}
+    &lt;/main&gt;
+    
+    &lt;footer&gt;
+        &lt;p&gt;&amp;copy; {{.site.Author}}&lt;/p&gt;
+    &lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<h3 id="heading-1">配置文件</h3>
+<p><code>_config.yml</code> 示例：</p>
+<pre><code class="language-yaml"># 站点信息
+title: &quot;我的网站&quot;
+description: &quot;网站描述&quot;
+author: &quot;作者名&quot;
+url: &quot;http://localhost:4000&quot;
+
+# 目录配置
+source: &quot;.&quot;
+destination: &quot;_site&quot;
+layouts_dir: &quot;_layouts&quot;
+posts_dir: &quot;_posts&quot;
+
+# 永久链接格式
+permalink: &quot;date&quot;  # 可选: date, pretty, none
+
+# 服务器配置
+port: 4000
+host: &quot;127.0.0.1&quot;
+</code></pre>
+<h2 id="jekyll">与Jekyll的差异</h2>
+<h3 id="heading-2">相似之处</h3>
+<ul>
+<li>相同的项目结构</li>
+<li>相同的前置数据格式</li>
+<li>相同的配置文件格式</li>
+<li>相同的永久链接配置</li>
+</ul>
+<h3 id="heading-3">主要差异</h3>
+<ol>
+<li><strong>模板引擎</strong>: 使用Go的HTML模板而不是Liquid</li>
+<li><strong>Markdown处理器</strong>: 使用Goldmark而不是Kramdown</li>
+<li><strong>性能</strong>: Go版本通常更快</li>
+<li><strong>部署</strong>: 编译为单个二进制文件，无需Ruby环境</li>
+</ol>
+<h3 id="heading-4">模板语法对比</h3>
+<table>
+<thead>
+<tr>
+<th>Jekyll (Liquid)</th>
+<th>Jacky (Go Template)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{{ page.title }}</code></td>
+<td><code>{{.page.Title}}</code></td>
+</tr>
+<tr>
+<td><code>{{ site.title }}</code></td>
+<td><code>{{.site.Title}}</code></td>
+</tr>
+<tr>
+<td><code>{{ content }}</code></td>
+<td><code>{{.content}}</code></td>
+</tr>
+<tr>
+<td><code>{% if page.title %}</code></td>
+<td><code>{{if .page.Title}}</code></td>
+</tr>
+<tr>
+<td><code>{% for post in site.posts %}</code></td>
+<td><code>{{range .site.Posts}}</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="heading-5">开发计划</h2>
+<ul>
+<li><input disabled="" type="checkbox" /> 文件监听功能</li>
+<li><input disabled="" type="checkbox" /> 本地开发服务器</li>
+<li><input disabled="" type="checkbox" /> 插件系统</li>
+<li><input disabled="" type="checkbox" /> 更多模板函数</li>
+<li><input disabled="" type="checkbox" /> 分页功能</li>
+<li><input disabled="" type="checkbox" /> 标签和分类页面</li>
+<li><input disabled="" type="checkbox" /> RSS/Atom feed</li>
+<li><input disabled="" type="checkbox" /> 搜索功能</li>
+</ul>
+<h2 id="heading-6">贡献</h2>
+<p>欢迎提交Issue和Pull Request！</p>
+<h2 id="heading-7">许可证</h2>
+<p>MIT License</p>
+<pre><code></code></pre>
+
+          </div>
+          
+          <footer class="article-footer">
+            <div class="article-info">
+              <p>本文发表于 ，作者：你的名字</p>
+            </div>
+          </footer>
+        </article>
+        
+        <aside class="academic-sidebar">
+          <section class="sidebar-section">
+            <h3>最近文章</h3>
+            <ul class="recent-posts">
+              
+                
+                  <li>
+                    <a href="http://127.0.0.1:8080/2025/07/12/%e6%b5%8b%e8%af%95rss%e5%92%8csitemap%e5%8a%9f%e8%83%bd.html">测试RSS和Sitemap功能</a>
+                    <time>2025-07-12</time>
+                  </li>
+                
+              
+                
+                  <li>
+                    <a href="http://127.0.0.1:8080/2024/07/10/demo.html">极简博客功能测试</a>
+                    <time>2024-07-10</time>
+                  </li>
+                
+              
+            </ul>
+          </section>
+          
+          <section class="sidebar-section">
+            <h3>分类</h3>
+            <ul class="category-list">
+              
+                <li><a href="/categories/%e5%8d%9a%e5%ae%a2/">博客 (1)</a></li>
+              
+                <li><a href="/categories/%e6%8a%80%e6%9c%af/">技术 (1)</a></li>
+              
+            </ul>
+          </section>
+          
+          <section class="sidebar-section">
+            <h3>标签</h3>
+            <div class="tag-cloud">
+              
+                <span class="tag">测试</span>
+              
+                <span class="tag">功能</span>
+              
+                <span class="tag">博客</span>
+              
+                <span class="tag">功能测试</span>
+              
+                <span class="tag">RSS</span>
+              
+                <span class="tag">Sitemap</span>
+              
+                <span class="tag">极简</span>
+              
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  
+  <footer class="academic-footer">
+    <div class="container">
+      <p>&copy; 你的名字 - Jacky 博客</p>
+    </div>
+  </footer>
+</body>
+</html>

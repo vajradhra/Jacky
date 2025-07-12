@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>归档 - {{ .site.title }}</title>
+  
+  <!-- Academic CSS -->
+  <link rel="stylesheet" href="/stylesheets/site.css">
+  
+  <!-- Academic Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Favicon -->
+  <link href="/favicon.png" rel="icon">
+  
+  <!-- RSS -->
+  <link href="/feed.xml" rel="alternate" type="application/rss+xml" title="{{ .site.title }}" />
+  
+  <meta name="description" content="文章归档 - {{ .site.description }}" />
+  <meta name="author" content="{{ .site.author }}">
+</head>
+<body>
+  <!-- Academic Header -->
+  <header class="academic-header">
+    <div class="container">
+      <div class="header-content">
+        <h1 class="site-title">
+          <a href="/">{{ .site.title }}</a>
+        </h1>
+        <p class="site-subtitle">{{ .site.subtitle }}</p>
+        <nav class="academic-nav">
+          <a href="/">首页</a>
+          <a href="/archives/">归档</a>
+          <a href="/categories/">分类</a>
+          <a href="/tags/">标签</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="academic-main">
+    <div class="container">
+      <div class="content-wrapper">
+        <div class="academic-content">
+          <header class="article-header">
+            <h1 class="article-title">文章归档</h1>
+            <p class="article-meta">按时间顺序整理的所有文章</p>
+          </header>
+          
+          <div class="archive-list">
+            {{ if .archives }}
+              {{ range $yearMonth, $posts := .archives }}
+                {{ if ne $yearMonth "" }}
+                  <section class="archive-year">
+                    <h2 class="year-title">{{ $yearMonth }}</h2>
+                    <ul class="archive-posts">
+                      {{ range $posts }}
+                        <li class="archive-post">
+                          <time class="post-date">{{ .Date.Format "01-02" }}</time>
+                          <a href="{{ .URL }}" class="post-title">{{ .Title }}</a>
+                          {{ if .Categories }}
+                            <span class="post-category">{{ index .Categories 0 }}</span>
+                          {{ end }}
+                        </li>
+                      {{ end }}
+                    </ul>
+                  </section>
+                {{ end }}
+              {{ end }}
+            {{ else }}
+              <p class="empty-tip">暂无归档内容。</p>
+            {{ end }}
+          </div>
+        </div>
+        
+        <aside class="academic-sidebar">
+          <section class="sidebar-section">
+            <h3>最近文章</h3>
+            <ul class="recent-posts">
+              {{ range $i, $post := .site.posts }}
+                {{ if lt $i 8 }}
+                  <li>
+                    <a href="{{ $post.URL }}">{{ $post.Title }}</a>
+                    <time>{{ $post.Date.Format "2006-01-02" }}</time>
+                  </li>
+                {{ end }}
+              {{ end }}
+            </ul>
+          </section>
+          
+          <section class="sidebar-section">
+            <h3>分类</h3>
+            <ul class="category-list">
+              {{ range $category, $posts := .site.categories }}
+                <li><a href="/categories/{{ $category }}/">{{ $category }} ({{ len $posts }})</a></li>
+              {{ end }}
+            </ul>
+          </section>
+          
+          <section class="sidebar-section">
+            <h3>标签</h3>
+            <div class="tag-cloud">
+              {{ range .site.JiebaTags }}
+                <span class="tag">{{ . }}</span>
+              {{ end }}
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <!-- Academic Footer -->
+  <footer class="academic-footer">
+    <div class="container">
+      <p>&copy; {{ .site.author }} - {{ .site.title }}</p>
+    </div>
+  </footer>
+</body>
+</html>

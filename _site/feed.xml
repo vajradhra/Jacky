@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Jacky 博客</title>
+    <link>http://127.0.0.1:8080</link>
+    <description>Jacky 静态网站生成器演示</description>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 12 Jul 2025 20:55:48 &#43;0800</lastBuildDate>
+    <atom:link href="http://127.0.0.1:8080/feed.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>测试RSS和Sitemap功能</title>
+      <link>http://127.0.0.1:8080/http://127.0.0.1:8080/2025/07/12/测试rss和sitemap功能.html</link>
+      <guid>http://127.0.0.1:8080/http://127.0.0.1:8080/2025/07/12/测试rss和sitemap功能.html</guid>
+      <pubDate>Sat, 12 Jul 2025 00:00:00 &#43;0000</pubDate>
+      <description>&lt;![CDATA[这里是正文内容。]]></description>
+      
+    </item>
+    
+    <item>
+      <title>极简博客功能测试</title>
+      <link>http://127.0.0.1:8080/http://127.0.0.1:8080/2024/07/10/demo.html</link>
+      <guid>http://127.0.0.1:8080/http://127.0.0.1:8080/2024/07/10/demo.html</guid>
+      <pubDate>Wed, 10 Jul 2024 12:00:00 &#43;0000</pubDate>
+      <description>&lt;![CDATA[这是用于测试归档、标签、分类功能的示例文章。
+
+- 你可以在 /archives/ 页面看到归档效果。
+- 你可以在 /tags/ 页面看到标签效果。
+- 你可以在 /categories/ 页面看到分类效果。]]></description>
+      
+      <category>技术</category>
+      
+    </item>
+    
+  </channel>
+</rss>

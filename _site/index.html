@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> - Jacky 博客</title>
+  
+  
+  <link rel="stylesheet" href="/stylesheets/site.css">
+  
+  
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+  
+  
+  <link href="/favicon.png" rel="icon">
+  
+  
+  <link href="/feed.xml" rel="alternate" type="application/rss+xml" title="Jacky 博客" />
+  
+  <meta name="description" content="Jacky 静态网站生成器演示" />
+  <meta name="author" content="你的名字">
+</head>
+<body>
+  
+  <header class="academic-header">
+    <div class="container">
+      <div class="header-content">
+        <h1 class="site-title">
+          <a href="/">Jacky 博客</a>
+        </h1>
+        <p class="site-subtitle"></p>
+        <nav class="academic-nav">
+          <a href="/">首页</a>
+          <a href="/archives/">归档</a>
+          <a href="/categories/">分类</a>
+          <a href="/tags/">标签</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  
+  <main class="academic-main">
+    <div class="container">
+      <div class="content-wrapper">
+        <article class="academic-content">
+          <h1 id="-octopress-">欢迎来到 Octopress 文档中心</h1>
+<p>Octopress 是一个基于 Jekyll 的静态博客框架，专为黑客和极客设计。它提供了丰富的功能和优雅的设计，让博客写作变得更加简单和高效。</p>
+<h2 id="-">🚀 主要特性</h2>
+<div class="feature-grid">
+    <div class="feature-card">
+        <h3>🎨 优雅设计</h3>
+        <p>内置多种精美的主题和布局，让你的博客看起来专业而美观。</p>
+    </div>
+<pre><code>&lt;div class=&quot;feature-card&quot;&gt;
+    &lt;h3&gt;⚡ 高性能&lt;/h3&gt;
+    &lt;p&gt;静态网站生成，加载速度快，SEO 友好，部署简单。&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;feature-card&quot;&gt;
+    &lt;h3&gt;🔧 高度可定制&lt;/h3&gt;
+    &lt;p&gt;丰富的插件系统和主题定制选项，满足各种需求。&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;feature-card&quot;&gt;
+    &lt;h3&gt;📝 Markdown 支持&lt;/h3&gt;
+    &lt;p&gt;使用 Markdown 语法写作，专注于内容创作而非格式调整。&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;feature-card&quot;&gt;
+    &lt;h3&gt;🌐 多平台部署&lt;/h3&gt;
+    &lt;p&gt;支持 GitHub Pages、Netlify、Vercel 等多种部署平台。&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;feature-card&quot;&gt;
+    &lt;h3&gt;🛠️ 开发者友好&lt;/h3&gt;
+    &lt;p&gt;完整的命令行工具和 API，适合开发者使用。&lt;/p&gt;
+&lt;/div&gt;
+</code></pre>
+</div>
+<h2 id="--1">📚 插件生态系统</h2>
+<p>Octopress 拥有丰富的插件生态系统，包括：</p>
+<h3 id="heading">站点工具</h3>
+<ul>
+<li><strong>octopress</strong> - 核心框架</li>
+<li><strong>octopress-deploy</strong> - 部署工具</li>
+<li><strong>octopress-linkblog</strong> - 链接博客功能</li>
+<li><strong>octopress-feed</strong> - RSS 订阅</li>
+<li><strong>octopress-asset-pipeline</strong> - 资源管道</li>
+<li><strong>octopress-minify-html</strong> - HTML 压缩</li>
+<li><strong>octopress-date-format</strong> - 日期格式化</li>
+</ul>
+<h3 id="heading-1">主题</h3>
+<ul>
+<li><strong>octopress-genesis-theme</strong> - Genesis 主题</li>
+</ul>
+<h3 id="heading-2">开发者工具</h3>
+<ul>
+<li><strong>octopress-ink</strong> - 插件开发框架</li>
+<li><strong>octopress-codefence</strong> - 代码围栏</li>
+<li><strong>octopress-gist</strong> - GitHub Gist 集成</li>
+<li><strong>octopress-render-code</strong> - 代码渲染</li>
+<li><strong>octopress-codeblock</strong> - 代码块</li>
+<li><strong>octopress-solarized</strong> - Solarized 主题</li>
+<li><strong>octopress-filters</strong> - 过滤器</li>
+<li><strong>octopress-debugger</strong> - 调试工具</li>
+</ul>
+<h3 id="liquid-">Liquid 插件</h3>
+<ul>
+<li><strong>octopress-quote-tag</strong> - 引用标签</li>
+<li><strong>octopress-filter-tag</strong> - 过滤器标签</li>
+<li><strong>octopress-pullquote-tag</strong> - 引用标签</li>
+<li><strong>octopress-image-tag</strong> - 图片标签</li>
+<li><strong>octopress-video-tag</strong> - 视频标签</li>
+<li><strong>octopress-include-tag</strong> - 包含标签</li>
+<li><strong>octopress-render-tag</strong> - 渲染标签</li>
+<li><strong>octopress-wrap-tag</strong> - 包装标签</li>
+<li><strong>octopress-assign-tag</strong> - 赋值标签</li>
+<li><strong>octopress-capture-tag</strong> - 捕获标签</li>
+<li><strong>octopress-return-tag</strong> - 返回标签</li>
+<li><strong>octopress-comment-tag</strong> - 注释标签</li>
+<li><strong>octopress-content-for</strong> - 内容循环</li>
+<li><strong>octopress-markdown-tag</strong> - Markdown 标签</li>
+<li><strong>octopress-abort-tag</strong> - 中止标签</li>
+</ul>
+<h2 id="--2">🎯 快速开始</h2>
+<h3 id="1--octopress">1. 安装 Octopress</h3>
+<pre><code class="language-bash">gem install octopress
+</code></pre>
+<h3 id="2-">2. 创建新博客</h3>
+<pre><code class="language-bash">octopress new my-blog
+cd my-blog
+</code></pre>
+<h3 id="3-">3. 安装依赖</h3>
+<pre><code class="language-bash">bundle install
+</code></pre>
+<h3 id="4-">4. 启动开发服务器</h3>
+<pre><code class="language-bash">octopress serve
+</code></pre>
+<h3 id="5-">5. 创建新文章</h3>
+<pre><code class="language-bash">octopress new post &quot;我的第一篇文章&quot;
+</code></pre>
+<h2 id="--3">📖 文档导航</h2>
+<ul>
+<li><strong><a href="/docs/installation">安装指南</a></strong> - 详细的安装和配置说明</li>
+<li><strong><a href="/docs/tutorials">使用教程</a></strong> - 从入门到精通的完整教程</li>
+<li><strong><a href="/docs/plugins">插件文档</a></strong> - 所有插件的详细文档</li>
+<li><strong><a href="/docs/themes">主题定制</a></strong> - 主题开发和定制指南</li>
+<li><strong><a href="/docs/deployment">部署指南</a></strong> - 各种平台的部署方法</li>
+</ul>
+<h2 id="--4">🤝 社区支持</h2>
+<ul>
+<li><strong>GitHub</strong>: <a href="https://github.com/octopress/octopress">octopress/octopress</a></li>
+<li><strong>文档</strong>: <a href="http://octopress.org">octopress.org</a></li>
+<li><strong>讨论</strong>: <a href="https://github.com/octopress/octopress/discussions">GitHub Discussions</a></li>
+</ul>
+<hr />
+<p><em>这个网站由 Jacky 生成，展示了 Octopress 的强大功能和优雅设计。</em></p>
+
+        </article>
+        
+        <aside class="academic-sidebar">
+          <section class="sidebar-section">
+            <h3>最近文章</h3>
+            <ul class="recent-posts">
+              
+                
+                  <li>
+                    <a href="http://127.0.0.1:8080/2025/07/12/%e6%b5%8b%e8%af%95rss%e5%92%8csitemap%e5%8a%9f%e8%83%bd.html">测试RSS和Sitemap功能</a>
+                    <time>2025-07-12</time>
+                  </li>
+                
+              
+                
+                  <li>
+                    <a href="http://127.0.0.1:8080/2024/07/10/demo.html">极简博客功能测试</a>
+                    <time>2024-07-10</time>
+                  </li>
+                
+              
+            </ul>
+          </section>
+          
+          <section class="sidebar-section">
+            <h3>分类</h3>
+            <ul class="category-list">
+              
+                <li><a href="/categories/%e5%8d%9a%e5%ae%a2/">博客 (1)</a></li>
+              
+                <li><a href="/categories/%e6%8a%80%e6%9c%af/">技术 (1)</a></li>
+              
+            </ul>
+          </section>
+          
+          <section class="sidebar-section">
+            <h3>标签</h3>
+            <div class="tag-cloud">
+              
+                <span class="tag">测试</span>
+              
+                <span class="tag">功能</span>
+              
+                <span class="tag">博客</span>
+              
+                <span class="tag">功能测试</span>
+              
+                <span class="tag">RSS</span>
+              
+                <span class="tag">Sitemap</span>
+              
+                <span class="tag">极简</span>
+              
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  
+  <footer class="academic-footer">
+    <div class="container">
+      <p>&copy; 你的名字 - Jacky 博客</p>
+    </div>
+  </footer>
+</body>
+</html>
