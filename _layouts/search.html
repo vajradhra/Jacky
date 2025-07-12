@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>搜索 - {{ .site.title }}</title>
+  <link rel="stylesheet" href="/stylesheets/site.css">
+  <meta name="description" content="搜索文章内容" />
+  <meta name="author" content="{{ .site.author }}">
+</head>
+<body>
+  <header class="academic-header">
+    <div class="container">
+      <div class="header-content">
+        <h1 class="site-title">
+          <a href="/">{{ .site.title }}</a>
+        </h1>
+        <p class="site-subtitle">{{ .site.subtitle }}</p>
+        <nav class="academic-nav">
+          <a href="/">首页</a>
+          <a href="/archives/">归档</a>
+          <a href="/search.html" class="active">搜索</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+  <main class="academic-main">
+    <div class="container">
+      <div class="content-wrapper">
+        <article class="academic-content">
+          <header class="article-header">
+            <h1 class="article-title">搜索文章</h1>
+            <div class="article-meta">
+              <p>在博客中搜索您感兴趣的内容</p>
+            </div>
+          </header>
+          <div class="article-content">
+            <div class="search-container">
+              <form id="searchForm" class="search-form">
+                <div class="search-input-group">
+                  <input type="text" id="searchInput" name="q" placeholder="输入关键词搜索..." class="search-input" autocomplete="off">
+                  <button type="submit" class="search-button">搜索</button>
+                </div>
+              </form>
+              
+              <div id="searchResults" class="search-results" style="display: none;">
+                <h3>搜索结果</h3>
+                <div id="resultsList" class="results-list"></div>
+                <div id="noResults" class="no-results" style="display: none;">
+                  <p>没有找到相关结果，请尝试其他关键词。</p>
+                </div>
+              </div>
+              
+              <div id="searchTips" class="search-tips">
+                <h3>搜索提示</h3>
+                <ul>
+                  <li>支持中文和英文关键词搜索</li>
+                  <li>可以搜索文章标题和内容</li>
+                  <li>搜索结果按相关性排序</li>
+                  <li>点击结果可直接跳转到文章</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </article>
+        <aside class="academic-sidebar">
+          <section class="sidebar-section">
+            <h3>最近文章</h3>
+            <ul class="recent-posts">
+              {{ range $i, $post := .site.posts }}
+                {{ if lt $i 8 }}
+                  <li>
+                    <a href="{{ $post.URL }}">{{ $post.Title }}</a>
+                    <time>{{ $post.Date.Format "2006-01-02" }}</time>
+                  </li>
+                {{ end }}
+              {{ end }}
+            </ul>
+          </section>
+          <section class="sidebar-section">
+            <h3>智能分类</h3>
+            <div class="tag-cloud">
+              {{ range .site.JiebaTags }}
+                <span class="tag">{{ . }}</span>
+              {{ end }}
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+  <footer class="academic-footer">
+    <div class="container">
+      <p>&copy; {{ .site.author }} - {{ .site.title }}</p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchForm = document.getElementById('searchForm');
+      const searchInput = document.getElementById('searchInput');
+      const searchResults = document.getElementById('searchResults');
+      const resultsList = document.getElementById('resultsList');
+      const noResults = document.getElementById('noResults');
+      const searchTips = document.getElementById('searchTips');
+
+      // 从URL参数获取搜索词
+      const urlParams = new URLSearchParams(window.location.search);
+      const query = urlParams.get('q');
+      if (query) {
+        searchInput.value = query;
+        performSearch(query);
+      }
+
+      searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const query = searchInput.value.trim();
+        if (query) {
+          // 更新URL
+          const newUrl = new URL(window.location);
+          newUrl.searchParams.set('q', query);
+          window.history.pushState({}, '', newUrl);
+          
+          performSearch(query);
+        }
+      });
+
+      function performSearch(query) {
+        if (!query) {
+          searchResults.style.display = 'none';
+          searchTips.style.display = 'block';
+          return;
+        }
+
+        // 显示加载状态
+        resultsList.innerHTML = '<p>搜索中...</p>';
+        searchResults.style.display = 'block';
+        searchTips.style.display = 'none';
+        noResults.style.display = 'none';
+
+        // 调用搜索API
+        fetch(`/api/search?q=${encodeURIComponent(query)}`)
+          .then(response => response.json())
+          .then(data => {
+            displayResults(data);
+          })
+          .catch(error => {
+            console.error('搜索失败:', error);
+            resultsList.innerHTML = '<p>搜索失败，请稍后重试。</p>';
+          });
+      }
+
+      function displayResults(data) {
+        if (data.results && data.results.length > 0) {
+          let html = `<p>找到 ${data.count} 个相关结果：</p><ul>`;
+          data.results.forEach(result => {
+            html += `
+              <li class="search-result-item">
+                <h4><a href="${result.url}">${result.title}</a></h4>
+                <div class="result-meta">
+                  <time>${result.date}</time>
+                </div>
+              </li>
+            `;
+          });
+          html += '</ul>';
+          resultsList.innerHTML = html;
+          noResults.style.display = 'none';
+        } else {
+          resultsList.innerHTML = '';
+          noResults.style.display = 'block';
+        }
+      }
+    });
+  </script>
+</body>
+</html> 
