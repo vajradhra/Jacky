@@ -64,6 +64,14 @@
               {{ end }}
             </ul>
           </section>
+          <section class="sidebar-section">
+            <h3>智能分类</h3>
+            <div class="tag-cloud">
+              {{ range .site.JiebaTags }}
+                <span class="tag">{{ . }}</span>
+              {{ end }}
+            </div>
+          </section>
         </aside>
       </div>
     </div>

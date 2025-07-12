@@ -1252,8 +1252,6 @@ func (s *Site) Build() error {
 	if err := s.copyStaticFiles(); err != nil {
 		return fmt.Errorf("复制静态文件失败: %w", err)
 	}
-	s.buildJiebaTags()
-	s.buildRouteTree()
 
 	log.Printf("构建完成: %d 个页面, %d 篇文章", len(s.Pages), len(s.Posts))
 	return nil
@@ -1637,7 +1635,7 @@ func (s *Site) renderArchives() error {
 			"pages":       s.Pages,
 			"data":        s.Data,
 			"archives":    archives,
-			"tags":        s.JiebaTags,
+			"JiebaTags":   s.JiebaTags,
 		},
 	}
 	// 设置CurrentData
