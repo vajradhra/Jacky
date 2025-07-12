@@ -58,21 +58,21 @@
   </url>
   
   <url>
-    <loc>http://127.0.0.1:8080//2025/07/12/测试rss和sitemap功能.html</loc>
+    <loc>http://127.0.0.1:8080/2025/07/12/测试rss和sitemap功能.html</loc>
     <lastmod>2025-07-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>http://127.0.0.1:8080//2025/01/27/极简博客测试.html</loc>
+    <loc>http://127.0.0.1:8080/2025/01/27/极简博客测试.html</loc>
     <lastmod>2025-07-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>http://127.0.0.1:8080//2024/07/10/demo.html</loc>
+    <loc>http://127.0.0.1:8080/2024/07/10/demo.html</loc>
     <lastmod>2025-07-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

@@ -3013,7 +3013,12 @@ func (s *Site) generateSitemap() error {
 
 	// 添加文章
 	for _, post := range s.Posts {
-		urls = append(urls, "/"+post.extractRelativeURL())
+		relativeURL := post.extractRelativeURL()
+		// 确保URL不以斜杠开头，避免重复斜杠
+		if strings.HasPrefix(relativeURL, "/") {
+			relativeURL = relativeURL[1:]
+		}
+		urls = append(urls, "/"+relativeURL)
 	}
 
 	// 添加归档页面
