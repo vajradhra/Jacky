@@ -5,27 +5,19 @@
     <link>http://127.0.0.1:8080</link>
     <description>Jacky 静态网站生成器演示</description>
     <language>zh-CN</language>
-    <lastBuildDate>Sat, 12 Jul 2025 22:40:19 &#43;0800</lastBuildDate>
+    <lastBuildDate>Sun, 13 Jul 2025 08:58:31 &#43;0800</lastBuildDate>
     <atom:link href="http://127.0.0.1:8080/feed.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>测试RSS和Sitemap功能</title>
-      <link>http://127.0.0.1:8080/http://127.0.0.1:8080/2025/07/12/测试rss和sitemap功能.html</link>
-      <guid>http://127.0.0.1:8080/http://127.0.0.1:8080/2025/07/12/测试rss和sitemap功能.html</guid>
-      <pubDate>Sat, 12 Jul 2025 00:00:00 &#43;0000</pubDate>
-      <description>&lt;![CDATA[这里是正文内容。]]></description>
-    </item>
-    
-    <item>
       <title>极简博客测试</title>
-      <link>http://127.0.0.1:8080/http://127.0.0.1:8080/2025/01/27/极简博客测试.html</link>
-      <guid>http://127.0.0.1:8080/http://127.0.0.1:8080/2025/01/27/极简博客测试.html</guid>
-      <pubDate>Mon, 27 Jan 2025 00:00:00 &#43;0000</pubDate>
+      <link>http://127.0.0.1:8080/http://127.0.0.1:8080/2025/07/12/极简博客测试.html</link>
+      <guid>http://127.0.0.1:8080/http://127.0.0.1:8080/2025/07/12/极简博客测试.html</guid>
+      <pubDate>Sat, 12 Jul 2025 22:20:05 &#43;0800</pubDate>
       <description>&lt;![CDATA[## 文章内容
 
-### 极简博客测试 重複標題
+### 极简博客测试 重复标题
 
-这是一个测试极简博客功能的文章。 這個灰色的小字在第一個標題底下
+这是一个测试极简博客功能的文章。 这个灰色的小字在第一个标题底下
 
 ### 功能特性测试
 
@@ -66,10 +58,18 @@
     </item>
     
     <item>
+      <title>测试RSS和Sitemap功能</title>
+      <link>http://127.0.0.1:8080/http://127.0.0.1:8080/2025/07/12/测试rss和sitemap功能.html</link>
+      <guid>http://127.0.0.1:8080/http://127.0.0.1:8080/2025/07/12/测试rss和sitemap功能.html</guid>
+      <pubDate>Sat, 12 Jul 2025 22:07:32 &#43;0800</pubDate>
+      <description>&lt;![CDATA[这里是正文内容。]]></description>
+    </item>
+    
+    <item>
       <title>极简博客功能测试</title>
-      <link>http://127.0.0.1:8080/http://127.0.0.1:8080/2024/07/10/demo.html</link>
-      <guid>http://127.0.0.1:8080/http://127.0.0.1:8080/2024/07/10/demo.html</guid>
-      <pubDate>Wed, 10 Jul 2024 00:00:00 &#43;0000</pubDate>
+      <link>http://127.0.0.1:8080/http://127.0.0.1:8080/2025/07/12/demo.html</link>
+      <guid>http://127.0.0.1:8080/http://127.0.0.1:8080/2025/07/12/demo.html</guid>
+      <pubDate>Sat, 12 Jul 2025 22:07:07 &#43;0800</pubDate>
       <description>&lt;![CDATA[这是用于测试归档、标签、分类功能的示例文章。
 
 - 你可以在 /archives/ 页面看到归档效果。

@@ -20,6 +20,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/liuzl/gocc"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
@@ -657,24 +658,30 @@ func NewPost(path string, cfg *Config) (*Post, error) {
 		fm = make(map[string]interface{})
 	}
 
+	// 获取文件修改时间
+	info, err := os.Stat(path)
+	if err != nil {
+		return nil, fmt.Errorf("获取文件信息失败: %w", err)
+	}
+
 	// 创建文章对象
 	post := &Post{
 		Path:             path,
 		Content:          body,
 		FrontMatter:      fm,
 		ExcerptSeparator: "\n\n",
+		Date:             info.ModTime(), // 只用文件时间
 	}
 
-	// 从前置数据中提取信息
+	// 从前置数据中提取信息（不再处理date）
 	if err := post.extractFrontMatter(); err != nil {
 		log.Printf("警告: 提取前置数据失败，使用默认值: %v", err)
 		// 设置默认值
 		post.Title = filepath.Base(path)
 		post.Layout = "post"
-		post.Date = time.Now()
 	}
 
-	// 从文件名中提取信息
+	// 只从文件名提取slug和title，不再处理日期
 	post.extractFromFilename()
 
 	// 生成URL
@@ -698,18 +705,6 @@ func (p *Post) extractFrontMatter() error {
 		p.Layout = layout
 	}
 
-	// 日期
-	if date, ok := p.FrontMatter["date"].(time.Time); ok {
-		p.Date = date
-	} else if dateStr, ok := p.FrontMatter["date"].(string); ok {
-		// 尝试解析日期字符串
-		if parsed, err := time.Parse("2006-01-02 15:04:05", dateStr); err == nil {
-			p.Date = parsed
-		} else if parsed, err := time.Parse("2006-01-02", dateStr); err == nil {
-			p.Date = parsed
-		}
-	}
-
 	// 摘要分隔符
 	if separator, ok := p.FrontMatter["excerpt_separator"].(string); ok {
 		p.ExcerptSeparator = separator
@@ -723,30 +718,25 @@ func (p *Post) extractFrontMatter() error {
 	return nil
 }
 
-// extractFromFilename 从文件名中提取信息
+// extractFromFilename 只处理slug和title，不再处理日期
 func (p *Post) extractFromFilename() {
 	filename := filepath.Base(p.Path)
 	matches := filenameRegex.FindStringSubmatch(filename)
 
 	if len(matches) >= 5 {
-		// 提取日期
-		if p.Date.IsZero() {
-			if year, month, day := matches[1], matches[2], matches[3]; year != "" && month != "" && day != "" {
-				if date, err := time.Parse("2006-01-02", fmt.Sprintf("%s-%s-%s", year, month, day)); err == nil {
-					p.Date = date
-				}
-			}
-		}
-
-		// 提取标题和slug
+		// 只提取标题和slug
 		titlePart := matches[4]
-		// 自动去除 slug 前缀的日期（如 2025-07-12-測試rss和sitemap功能 -> 測試rss和sitemap功能）
 		titlePart = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}-[0-9]{2}-`).ReplaceAllString(titlePart, "")
 		if p.Title == "" {
 			p.Title = strings.ReplaceAll(titlePart, "-", " ")
 		}
 		// 生成slug
 		p.Slug = titlePart
+	} else {
+		// 没有匹配到规范文件名，slug用去除扩展名的文件名
+		if p.Slug == "" {
+			p.Slug = strings.TrimSuffix(filename, filepath.Ext(filename))
+		}
 	}
 }
 
@@ -1469,6 +1459,10 @@ func (s *Site) loadPosts() error {
 			// 继续处理，不中断程序
 		}
 
+		// 预处理：将标题和摘要转换为简体，用于搜索
+		p.Title = toSimplified(p.Title)
+		p.Excerpt = toSimplified(p.Excerpt)
+
 		s.mu.Lock()
 		s.Posts = append(s.Posts, p)
 		s.mu.Unlock()
@@ -1849,15 +1843,64 @@ func (s *Site) Serve(host string, port int) error {
 			return
 		}
 
-		// 使用URL二叉树进行前缀搜索
-		results := s.URLTree.SearchPrefix(query)
+		// 将查询词转换为简体
+		query = toSimplified(query)
+
+		// 使用jieba分词
+		x := gojieba.NewJieba()
+		defer x.Free()
+		queryWords := x.CutForSearch(query, true)
+
+		// 使用map去重
+		postMap := make(map[*Post]bool)
+		var results []*Post
+
+		// 搜索匹配的文章
+		for _, word := range queryWords {
+			word = toSimplified(word)
+			if len([]rune(word)) < 2 {
+				continue
+			}
+
+			// 在URL树中搜索
+			path := "/content/" + word
+			posts := s.URLTree.SearchPrefix(path)
+			for _, post := range posts {
+				if !postMap[post] {
+					postMap[post] = true
+					results = append(results, post)
+				}
+			}
+		}
+
+		// 如果没有找到结果，尝试全文搜索
+		if len(results) == 0 {
+			// 在所有文章中搜索标题和摘要
+			for _, post := range s.Posts {
+				// 检查标题是否包含查询词
+				if strings.Contains(strings.ToLower(post.Title), strings.ToLower(query)) {
+					if !postMap[post] {
+						postMap[post] = true
+						results = append(results, post)
+					}
+				}
+				// 检查摘要是否包含查询词
+				if strings.Contains(strings.ToLower(post.Excerpt), strings.ToLower(query)) {
+					if !postMap[post] {
+						postMap[post] = true
+						results = append(results, post)
+					}
+				}
+			}
+		}
 
 		var response []gin.H
 		for _, post := range results {
 			response = append(response, gin.H{
-				"title": post.Title,
-				"url":   post.URL,
-				"date":  post.Date.Format("2006-01-02"),
+				"title":   post.Title,
+				"url":     post.URL,
+				"date":    post.Date.Format("2006-01-02"),
+				"excerpt": post.Excerpt,
 			})
 		}
 
@@ -2912,6 +2955,9 @@ func (s *Site) buildRouteTree() {
 
 // buildURLTree 构建URL二叉树
 func (s *Site) buildURLTree() {
+	// 标题分词插入
+	x := gojieba.NewJieba()
+	defer x.Free()
 	for _, post := range s.Posts {
 		relativeURL := post.extractRelativeURL()
 		s.URLTree.Insert(relativeURL, post)
@@ -2920,7 +2966,20 @@ func (s *Site) buildURLTree() {
 		archivePath := fmt.Sprintf("/archives/%04d/%02d/%02d/%s", post.Date.Year(), post.Date.Month(), post.Date.Day(), filepath.Base(relativeURL))
 		s.URLTree.Insert(archivePath, post)
 
-		// 已移除分类和标签路径，使用jieba分词作为智能分类
+		// 新增：整篇文章分词全部插入二元树（先转简体）
+		title := toSimplified(post.Title)
+		excerpt := toSimplified(post.Excerpt)
+		titleWords := x.CutForSearch(title, true)
+		contentWords := x.CutForSearch(excerpt, true)
+		allWords := append(titleWords, contentWords...)
+		for _, word := range allWords {
+			word = toSimplified(word)
+			if len([]rune(word)) < 2 {
+				continue
+			}
+			path := "/content/" + word
+			s.URLTree.Insert(path, post)
+		}
 	}
 
 	log.Printf("URL二叉树构建完成，包含 %d 个文章节点", len(s.Posts))
@@ -3168,4 +3227,24 @@ func (s *Site) renderPost(p *Post) error {
 	}
 	p.RenderedContent = html
 	return nil
+}
+
+// toSimplified 将字符串转为简体
+func toSimplified(s string) string {
+	// 使用 gocc 进行繁简转换
+	cc, err := gocc.New("t2s") // 繁体转简体
+	if err != nil {
+		// 如果转换失败，返回原字符串
+		log.Printf("繁简转换初始化失败: %v", err)
+		return s
+	}
+
+	result, err := cc.Convert(s)
+	if err != nil {
+		// 如果转换失败，返回原字符串
+		log.Printf("繁简转换失败: %v", err)
+		return s
+	}
+
+	return result
 }
